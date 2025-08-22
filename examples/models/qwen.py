@@ -20,19 +20,19 @@ if qwen_api_key is None:
 
 
 async def main():
-    llm = ChatQwen(
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-        model="qwen-plus",
-        api_key=qwen_api_key,
-    )
+	llm = ChatQwen(
+		base_url='https://dashscope.aliyuncs.com/compatible-mode/v1',
+		model='qwen-plus',
+		api_key=qwen_api_key,
+	)
 
-    agent = Agent(
+	agent = Agent(
 		task='What are the latest developments in AI technology? Search for recent news.',
 		llm=llm,
 		use_vision=False,
 		extend_system_message=extend_system_message,
 	)
-    await agent.run()
+	await agent.run()
 
 
 asyncio.run(main())
