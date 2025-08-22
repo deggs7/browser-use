@@ -52,17 +52,13 @@ class QwenMessageSerializer:
 	def _serialize_tool_calls(tool_calls: list[ToolCall]) -> list[dict[str, Any]]:
 		qwen_tool_calls: list[dict[str, Any]] = []
 		for tc in tool_calls:
-			try:
-				arguments = json.loads(tc.function.arguments)
-			except json.JSONDecodeError:
-				arguments = {'arguments': tc.function.arguments}
 			qwen_tool_calls.append(
 				{
 					'id': tc.id,
 					'type': 'function',
 					'function': {
 						'name': tc.function.name,
-						'arguments': arguments,
+						'arguments': tc.function.arguments,
 					},
 				}
 			)
