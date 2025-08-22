@@ -4,7 +4,7 @@ import pytest
 from pydantic import BaseModel
 
 from browser_use.llm import ChatQwen
-from browser_use.llm.messages import ContentPartTextParam, SystemMessage, UserMessage
+from browser_use.llm.messages import BaseMessage, ContentPartTextParam, SystemMessage, UserMessage
 
 
 class QwenTestResponseModel(BaseModel):
@@ -94,7 +94,7 @@ class TestQwenIntegration:
 				max_tokens=50,
 			)
 
-			messages = [UserMessage(content='Say "test" in one word.')]
+			messages: list[BaseMessage] = [UserMessage(content='Say "test" in one word.')]
 			try:
 				response = await chat.ainvoke(messages)
 				assert response is not None
@@ -110,7 +110,7 @@ class TestQwenIntegration:
 		if not os.getenv('QWEN_API_KEY'):
 			pytest.skip('QWEN_API_KEY not set')
 
-		messages = [UserMessage(content='Say hello briefly.')]
+		messages: list[BaseMessage] = [UserMessage(content='Say hello briefly.')]
 
 		# Test with temperature 0 (deterministic)
 		chat_det = ChatQwen(
@@ -140,7 +140,7 @@ class TestQwenIntegration:
 			max_tokens=20,
 		)
 
-		messages = [UserMessage(content='Say hello briefly.')]
+		messages: list[BaseMessage] = [UserMessage(content='Say hello briefly.')]
 		response = await chat.ainvoke(messages)
 
 		assert response is not None
