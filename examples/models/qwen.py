@@ -21,8 +21,8 @@ if qwen_api_key is None:
 
 async def main():
 	llm = ChatQwen(
-		base_url='https://dashscope.aliyuncs.com/compatible-mode/v1',
-		model='qwen-plus',
+		base_url='https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+		model='qwen-max',
 		api_key=qwen_api_key,
 	)
 
