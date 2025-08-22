@@ -35,7 +35,7 @@ async def basic_qwen_usage():
     llm = ChatQwen(
         model="qwen-plus",
         api_key=qwen_api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         temperature=0.1,
         max_tokens=1000,
     )
@@ -64,7 +64,7 @@ async def qwen_with_different_models():
             llm = ChatQwen(
                 model=model,
                 api_key=qwen_api_key,
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+                base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
                 temperature=0,
                 max_tokens=500,
             )
@@ -91,7 +91,7 @@ async def qwen_with_structured_output():
     llm = ChatQwen(
         model="qwen-plus",
         api_key=qwen_api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         temperature=0,
     )
 
@@ -116,7 +116,7 @@ async def qwen_international_vs_china():
     llm_intl = ChatQwen(
         model="qwen-plus",
         api_key=qwen_api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         temperature=0.1,
     )
 
@@ -152,7 +152,7 @@ async def qwen_with_custom_parameters():
     llm_creative = ChatQwen(
         model="qwen-plus",
         api_key=qwen_api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         temperature=0.9,
         top_p=0.95,
         max_tokens=1500,
@@ -163,7 +163,7 @@ async def qwen_with_custom_parameters():
     llm_conservative = ChatQwen(
         model="qwen-plus",
         api_key=qwen_api_key,
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
+        base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
         temperature=0.1,
         top_p=0.1,
         max_tokens=500,
