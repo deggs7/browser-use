@@ -86,31 +86,49 @@ def setup_logging(stream=None, log_level=None, force_setup=False):
 	root.handlers = []
 
 	class BrowserUseFormatter(logging.Formatter):
+		def __init__(self, fmt, log_level):
+			super().__init__(fmt)
+			self.log_level = log_level
+
 		def format(self, record):
-			# if isinstance(record.name, str) and record.name.startswith('browser_use.'):
-			# 	record.name = record.name.split('.')[-2]
+			# Only clean up names in INFO mode, keep everything in DEBUG mode
+			if self.log_level > logging.DEBUG and isinstance(record.name, str) and record.name.startswith('browser_use.'):
+				# Extract clean component names from logger names
+				if 'Agent🅰' in record.name:
+					record.name = 'Agent'
+				elif 'BrowserSession🆂' in record.name:
+					record.name = 'BrowserSession'
+				elif 'controller' in record.name:
+					record.name = 'controller'
+				elif 'dom' in record.name:
+					record.name = 'dom'
+				elif record.name.startswith('browser_use.'):
+					# For other browser_use modules, use the last part
+					parts = record.name.split('.')
+					if len(parts) >= 2:
+						record.name = parts[-1]
 			return super().format(record)
 
 	# Setup single handler for all loggers
 	console = logging.StreamHandler(stream or sys.stdout)
 
-	# adittional setLevel here to filter logs
-	if log_type == 'result':
-		console.setLevel('RESULT')
-		console.setFormatter(BrowserUseFormatter('%(message)s'))
-	else:
-		console.setFormatter(BrowserUseFormatter('%(levelname)-8s [%(name)s] %(message)s'))
-
-	# Configure root logger only
-	root.addHandler(console)
-
-	# Determine the log level to use
+	# Determine the log level to use first
 	if log_type == 'result':
 		log_level = 35  # RESULT level value
 	elif log_type == 'debug':
 		log_level = logging.DEBUG
 	else:
 		log_level = logging.INFO
+
+	# adittional setLevel here to filter logs
+	if log_type == 'result':
+		console.setLevel('RESULT')
+		console.setFormatter(BrowserUseFormatter('%(message)s', log_level))
+	else:
+		console.setFormatter(BrowserUseFormatter('%(levelname)-8s [%(name)s] %(message)s', log_level))
+
+	# Configure root logger only
+	root.addHandler(console)
 
 	# Configure root logger
 	root.setLevel(log_level)
@@ -127,29 +145,18 @@ def setup_logging(stream=None, log_level=None, force_setup=False):
 	bubus_logger.addHandler(console)
 	bubus_logger.setLevel(logging.INFO if log_type == 'result' else log_level)
 
-	# Configure CDP logging using separate CDP_LOGGING_LEVEL
-	cdp_log_type = CONFIG.CDP_LOGGING_LEVEL.lower()
-
-	# Determine the CDP log level to use
-	if cdp_log_type == 'result':
-		cdp_log_level = 35  # RESULT level value
-	elif cdp_log_type == 'debug':
-		cdp_log_level = logging.DEBUG
-	elif cdp_log_type == 'info':
-		cdp_log_level = logging.INFO
-	elif cdp_log_type == 'warning':
-		cdp_log_level = logging.WARNING
-	elif cdp_log_type == 'error':
-		cdp_log_level = logging.ERROR
-	else:
-		cdp_log_level = logging.WARNING  # Default to WARNING
-
+	# Configure CDP logging using cdp_use's setup function
+	# This enables the formatted CDP output using CDP_LOGGING_LEVEL environment variable
+	# Convert CDP_LOGGING_LEVEL string to logging level
+	cdp_level_str = CONFIG.CDP_LOGGING_LEVEL.upper()
+	cdp_level = getattr(logging, cdp_level_str, logging.WARNING)
+	
 	try:
 		from cdp_use.logging import setup_cdp_logging  # type: ignore
 
-		# Use CDP-specific level instead of browser_use level
+		# Use the CDP-specific logging level
 		setup_cdp_logging(
-			level=cdp_log_level,
+			level=cdp_level,
 			stream=stream or sys.stdout,
 			format_string='%(levelname)-8s [%(name)s] %(message)s' if log_type != 'result' else '%(message)s',
 		)
@@ -164,12 +171,12 @@ def setup_logging(stream=None, log_level=None, force_setup=False):
 		]
 		for logger_name in cdp_loggers:
 			cdp_logger = logging.getLogger(logger_name)
-			cdp_logger.setLevel(cdp_log_level)
+			cdp_logger.setLevel(cdp_level)
 			cdp_logger.addHandler(console)
 			cdp_logger.propagate = False
 
 	logger = logging.getLogger('browser_use')
-	# logger.info('BrowserUse logging setup complete with level %s', log_type)
+	# logger.debug('BrowserUse logging setup complete with level %s', log_type)
 
 	# Silence third-party loggers (but not CDP ones which we configured above)
 	third_party_loggers = [
@@ -190,6 +197,7 @@ def setup_logging(stream=None, log_level=None, force_setup=False):
 		'trafilatura',
 		'groq',
 		'portalocker',
+		'google_genai',
 		'portalocker.utils',
 		'websockets',  # General websockets (but not websockets.client which we need)
 	]
